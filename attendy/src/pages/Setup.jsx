@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { loadAppData, saveAppData } from "../utils/storage";
 
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 const HOURS_BY_DAY = {
   Monday: 7,
   Tuesday: 7,
   Wednesday: 7,
   Thursday: 7,
-  Friday: 7, // full 7 rows, but 5th becomes break
+  Friday: 7,
+  Saturday: 7, // full 7 rows, but 5th becomes break
 };
 
 const BREAK_SLOT = {
@@ -133,6 +134,12 @@ export default function Setup() {
   clearSavedMsg();
 };
 
+const copyTimetableToSaturday = (day) => {
+  if (!timetable[day]) return;
+  const newTT = { ...timetable };
+  newTT["Saturday"] = [...timetable[day]];
+  setTimetable(newTT);
+};
 
   return (
     <div className="space-y-8">
@@ -226,55 +233,71 @@ export default function Setup() {
             <tbody>
               {DAYS.map((day) => (
                 <tr key={day}>
-                  <td className="border border-gray-700 px-2 py-1 font-semibold">
+                    <td className="border border-gray-700 px-2 py-1 font-semibold">
                     {day}
-                  </td>
+                    </td>
 
-                  {Array.from({ length: 7 }).map((_, hourIndex) => {
-                    const maxHours = HOURS_BY_DAY[day];
+                    {/* If it's Saturday, show timetable copy selector */}
+                    {day === "Saturday" ? (
+                    <td colSpan={7} className="border border-gray-700 p-2">
+                        <select
+                        onChange={(e) => copyTimetableToSaturday(e.target.value)}
+                        className="w-full bg-gray-900 border border-gray-700 rounded px-2 py-1 text-xs"
+                        >
+                        <option value="">Select timetable source</option>
+                        {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map((d) => (
+                            <option key={d} value={d}>
+                            Copy from {d}
+                            </option>
+                        ))}
+                        </select>
+                    </td>
+                    ) : (
+                    Array.from({ length: 7 }).map((_, hourIndex) => {
+                        const maxHours = HOURS_BY_DAY[day];
 
-                    // slot is visually disabled (beyond allowed hours)
-                    const isDisabled = hourIndex >= maxHours;
+                        const isDisabled = hourIndex >= maxHours;
 
-                    // Friday H5 break logic (index 4)
-                    const isBreak =
+                        // Friday break (H5 = index 4)
+                        const isBreak =
                         BREAK_SLOT[day] !== undefined && BREAK_SLOT[day] === hourIndex;
 
-                    const value =
+                        const value =
                         !isDisabled && !isBreak && timetable[day]
-                        ? timetable[day][hourIndex] || ""
-                        : "";
+                            ? timetable[day][hourIndex] || ""
+                            : "";
 
-                    return (
+                        return (
                         <td key={hourIndex} className="border border-gray-700 px-1 py-1">
-                        {isDisabled ? (
+                            {isDisabled ? (
                             <div className="text-center text-gray-600">–</div>
-                        ) : isBreak ? (
+                            ) : isBreak ? (
                             <div className="text-center text-red-400 font-semibold">
-                            Break
+                                Break
                             </div>
-                        ) : (
+                            ) : (
                             <select
-                            value={value}
-                            onChange={(e) =>
+                                value={value}
+                                onChange={(e) =>
                                 handleTimetableChange(day, hourIndex, e.target.value)
-                            }
-                            className="w-full bg-gray-900 border border-gray-700 rounded px-1 py-1 text-xs"
+                                }
+                                className="w-full bg-gray-900 border border-gray-700 rounded px-1 py-1 text-xs"
                             >
-                            <option value="">(none)</option>
-                            {subjects.map((s) => (
+                                <option value="">(none)</option>
+                                {subjects.map((s) => (
                                 <option key={s.code} value={s.code}>
-                                {s.code}
+                                    {s.code}
                                 </option>
-                            ))}
+                                ))}
                             </select>
-                        )}
+                            )}
                         </td>
-                    );
-                    })}
-
+                        );
+                    })
+                    )}
                 </tr>
-              ))}
+                ))}
+
             </tbody>
           </table>
         </div>
