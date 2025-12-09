@@ -16,7 +16,11 @@ export default function Sidebar({ open, setOpen }) {
         ${open ? "translate-x-0" : "-translate-x-full"} 
         md:translate-x-0 md:static`}
     >
-      <h1 className="text-xl font-bold mb-6">📚 Attendy</h1>
+      <Link to="/" className="flex items-center gap-2 mb-6">
+        <img src="/attendance.svg" alt="App Logo" className="w-6 h-6" />
+        <span className="text-xl font-bold w-7 h-7 rounded-md">Attendy</span>
+    </Link>
+
       <nav className="space-y-2">
         <Link onClick={() => setOpen(false)} to="/" className={linkClass("/")}>Dashboard</Link>
         <Link onClick={() => setOpen(false)} to="/mark" className={linkClass("/mark")}>Mark Attendance</Link>
