@@ -29,7 +29,10 @@ export default function App() {
             >
               ☰
             </button>
-            <h1 className="text-lg font-semibold">📚 Attendy</h1>
+            <h1 className="text-lg font-semibold flex items-center gap-2">
+              <img src="/attendance.svg" alt="Attendy" className="h-6 w-6" />
+              Attendy
+            </h1>
           </header>
 
           {/* Page Content */}
